@@ -6,6 +6,7 @@ namespace ConsoleApplication1
     {
         //Initalized Variables
         private int [,] grid = null;
+        private int iterator = 0;
 
         //Constuctor
         public Matrix(int columnLength, int rowLength)
@@ -13,7 +14,7 @@ namespace ConsoleApplication1
             grid = new int[columnLength, rowLength];
         }
         
-        //Overloads
+        //Overloading Operations
         public static Matrix operator+(Matrix lhs, Matrix rhs)
         {
             if(lhs.Grid.GetLength(0) != rhs.Grid.GetLength(0))
@@ -29,9 +30,9 @@ namespace ConsoleApplication1
                 else
                 {
                     Matrix returnMatrix = new Matrix(lhs.Grid.GetLength(0),lhs.Grid.GetLength(1));
-                    for(int i = 0; i < returnMatrix.Grid.GetLength(0); i++)
+                    for(int i = 0; i < returnMatrix.Grid.GetLength(1); i++)
                     {
-                        for(int j = 0; j < returnMatrix.Grid.GetLength(1); j++)
+                        for(int j = 0; j < returnMatrix.Grid.GetLength(0); j++)
                         {
                             returnMatrix.Grid[j, i] = lhs.Grid[j, i] + rhs.Grid[j,i];
                         }
@@ -40,9 +41,29 @@ namespace ConsoleApplication1
                 }
             }
         }
-
+        
         //Methods
-        public void List() //Lists all the values in grid to Console
+        public int getFirst()
+        {
+            Iterator = 0;
+            return Iterator;
+        }
+        public int getLast()
+        {
+            Iterator = Grid.Length;
+            return Iterator;
+        }
+        public int getNext()
+        {
+            Iterator = ++iterator;
+            return Iterator;
+        }
+        public int gerPrev()
+        {
+            Iterator = --iterator;
+            return Iterator;
+        }
+        public void List()  //Lists all the values in grid to Console
         {
             for (int i = 0; i < grid.GetLength(1); i++)
             {
@@ -54,15 +75,42 @@ namespace ConsoleApplication1
                 Console.WriteLine("");
             }
         }
-        public void Build()
+        public void Fill(int Pos, int Length, int Value)    //Fills a selected area with a selected value, 
+                                                            //if the length of the Fill exceeds a row length then it will continue on the following row
+        {
+            if (Pos + Length > Grid.Length)
+            {
+                throw new IndexOutOfRangeException();
+            }
+            else
+            {
+                if(Pos < 0)
+                {
+                    throw new IndexOutOfRangeException();
+                }
+                else
+                {
+                    int rowNumber = Pos / Grid.GetLength(0);
+                    for(int i = 0; i < Length; i++)
+                    {
+                        if (i + Pos > Grid.GetLength(0))
+                        {
+                            Pos = 0;
+                        }
+                        Grid[i + Pos, rowNumber] = Value;
+                    }
+                }
+            }
+        }
+        public void Build( ) //One by one the Grid will set values for each block
         {
             bool buildFinsished = true;
             bool acceptedInput = true;
             do
             {
-                for (int i = 0; i < Grid.GetLength(0); i++)
+                for (int i = 0; i < Grid.GetLength(1); i++)
                 {
-                    for (int j = 0; j < Grid.GetLength(1); j++)
+                    for (int j = 0; j < Grid.GetLength(0); j++)
                     {
                         int userInput = 0;
                         do
@@ -114,8 +162,9 @@ namespace ConsoleApplication1
           
         }
 
+
         //Properties
-        public int[,] Grid
+        private int[,] Grid
         {
             get
             {
@@ -124,6 +173,29 @@ namespace ConsoleApplication1
             set
             {
                 grid = value;
+            }
+        }
+        public int Iterator
+        {
+            get
+            {
+                int rowNumber = iterator / Grid.GetLength(0);
+                return Grid[iterator % Grid.GetLength(0), rowNumber];
+            }
+            set
+            {
+                if(value > Grid.Length)
+                {
+                    iterator = Grid.Length;
+                }
+                else if(value < 0)
+                {
+                    iterator = 0;
+                }
+                else
+                {
+                    iterator = value;
+                }
             }
         }
     }
@@ -188,3 +260,4 @@ namespace ConsoleApplication1
         }
     }
 }
+
