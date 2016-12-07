@@ -17,24 +17,24 @@ namespace ConsoleApplication1
         //Overloading Operations
         public static Matrix operator+(Matrix lhs, Matrix rhs)
         {
-            if(lhs.Grid.GetLength(0) != rhs.Grid.GetLength(0))
+            if(lhs.grid.GetLength(0) != rhs.grid.GetLength(0))
             {
                 throw new InvalidOperationException();
             }
             else
             {
-                if(lhs.Grid.GetLength(1) != rhs.Grid.GetLength(1))
+                if(lhs.grid.GetLength(1) != rhs.grid.GetLength(1))
                 {
                     throw new InvalidOperationException();
                 }
                 else
                 {
-                    Matrix returnMatrix = new Matrix(lhs.Grid.GetLength(0),lhs.Grid.GetLength(1));
-                    for(int i = 0; i < returnMatrix.Grid.GetLength(1); i++)
+                    Matrix returnMatrix = new Matrix(lhs.grid.GetLength(0),lhs.grid.GetLength(1));
+                    for(int i = 0; i < returnMatrix.grid.GetLength(1); i++)
                     {
-                        for(int j = 0; j < returnMatrix.Grid.GetLength(0); j++)
+                        for(int j = 0; j < returnMatrix.grid.GetLength(0); j++)
                         {
-                            returnMatrix.Grid[j, i] = lhs.Grid[j, i] + rhs.Grid[j,i];
+                            returnMatrix.grid[j, i] = lhs.grid[j, i] + rhs.grid[j,i];
                         }
                     }
                     return returnMatrix;
@@ -43,42 +43,47 @@ namespace ConsoleApplication1
         }
         
         //Methods
+        public int getCurrent()
+        {
+            int rowNumber = iterator / grid.GetLength(0);
+            return grid[iterator % grid.GetLength(0), rowNumber];
+        }
         public int getFirst()
         {
             Iterator = 0;
-            return Iterator;
+            return getCurrent();
         }
         public int getLast()
         {
-            Iterator = Grid.Length;
-            return Iterator;
+            Iterator = grid.Length;
+            return getCurrent();
         }
         public int getNext()
         {
             Iterator = ++iterator;
-            return Iterator;
+            return getCurrent();
         }
         public int gerPrev()
         {
             Iterator = --iterator;
-            return Iterator;
+            return getCurrent();
         }
-        public void List()  //Lists all the values in grid to Console
+        public int[] List()  //Lists all the values in grid to Console
         {
-            for (int i = 0; i < grid.GetLength(1); i++)
+            int[] listArray = new int[grid.Length];
+            getLast();
+            int lastValue = Iterator;
+            while(Iterator < lastValue)
             {
-                for (int j = 0; j < grid.GetLength(0); j++)
-                {
-                    Console.Write(grid[j, i]);
-                    Console.Write(" ");
-                }
-                Console.WriteLine("");
+                listArray[iterator] = getCurrent();
+                getNext();
             }
+            return listArray;
         }
         public void Fill(int Pos, int Length, int Value)    //Fills a selected area with a selected value, 
                                                             //if the length of the Fill exceeds a row length then it will continue on the following row
         {
-            if (Pos + Length > Grid.Length)
+            if (Pos + Length > grid.Length)
             {
                 throw new IndexOutOfRangeException();
             }
@@ -90,17 +95,34 @@ namespace ConsoleApplication1
                 }
                 else
                 {
-                    int rowNumber = Pos / Grid.GetLength(0);
+                    int rowNumber = Pos / grid.GetLength(0);
                     for(int i = 0; i < Length; i++)
                     {
-                        if (i + Pos > Grid.GetLength(0))
+                        if (i + Pos > grid.GetLength(0))
                         {
                             Pos = 0;
                         }
-                        Grid[i + Pos, rowNumber] = Value;
+                        grid[i + Pos, rowNumber] = Value;
                     }
                 }
             }
+        }
+        public void Fill(int value) //Fills whole Grid with a value
+        {
+            getLast();
+            int lastValue = Iterator;
+            getFirst();
+            while(Iterator < lastValue)
+            {
+                input(value);
+                getNext();
+            }
+            
+        }
+        public void input(int value) //Places value at iterator's position
+        {
+            int rowNumber = iterator / grid.GetLength(0);
+            grid[iterator % grid.GetLength(0), rowNumber] = value;
         }
         public void Build( ) //One by one the Grid will set values for each block
         {
@@ -108,9 +130,9 @@ namespace ConsoleApplication1
             bool acceptedInput = true;
             do
             {
-                for (int i = 0; i < Grid.GetLength(1); i++)
+                for (int i = 0; i < grid.GetLength(1); i++)
                 {
-                    for (int j = 0; j < Grid.GetLength(0); j++)
+                    for (int j = 0; j < grid.GetLength(0); j++)
                     {
                         int userInput = 0;
                         do
@@ -133,7 +155,7 @@ namespace ConsoleApplication1
                         }
                         while (acceptedInput == false);
 
-                        Grid[j, i] = userInput;
+                        grid[j, i] = userInput;
                         List();
                     }
                 }
@@ -164,29 +186,17 @@ namespace ConsoleApplication1
 
 
         //Properties
-        private int[,] Grid
-        {
-            get
-            {
-                return grid;
-            }
-            set
-            {
-                grid = value;
-            }
-        }
         public int Iterator
         {
             get
             {
-                int rowNumber = iterator / Grid.GetLength(0);
-                return Grid[iterator % Grid.GetLength(0), rowNumber];
+                return iterator;
             }
             set
             {
-                if(value > Grid.Length)
+                if(value > grid.Length)
                 {
-                    iterator = Grid.Length;
+                    iterator = grid.Length;
                 }
                 else if(value < 0)
                 {
