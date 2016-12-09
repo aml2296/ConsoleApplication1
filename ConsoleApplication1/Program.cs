@@ -6,124 +6,190 @@ namespace ConsoleApplication1
     {
         //Initalized Variables
         private int [,] grid = null;
+        private int iterator = 0;
 
         //Constuctor
         public Matrix(int columnLength, int rowLength)
         {
-            grid = new int[columnLength, rowLength];
+            if (columnLength > 0 && rowLength > 0)
+            {
+                grid = new int[columnLength, rowLength];
+            }
+            else
+            {
+                throw new IndexOutOfRangeException();
+            }
         }
         
-        //Overloads
+        //Overloading Operations
         public static Matrix operator+(Matrix lhs, Matrix rhs)
         {
-            if(lhs.Grid.GetLength(0) != rhs.Grid.GetLength(0))
+            if(lhs.grid.GetLength(0) != rhs.grid.GetLength(0))
             {
                 throw new InvalidOperationException();
             }
             else
             {
-                if(lhs.Grid.GetLength(1) != rhs.Grid.GetLength(1))
+                if(lhs.grid.GetLength(1) != rhs.grid.GetLength(1))
                 {
                     throw new InvalidOperationException();
                 }
                 else
                 {
-                    Matrix returnMatrix = new Matrix(lhs.Grid.GetLength(0),lhs.Grid.GetLength(1));
-                    for(int i = 0; i < returnMatrix.Grid.GetLength(0); i++)
+                    Matrix returnMatrix = new Matrix(lhs.grid.GetLength(0),lhs.grid.GetLength(1));
+                    for(int i = 0; i < returnMatrix.grid.GetLength(1); i++)
                     {
-                        for(int j = 0; j < returnMatrix.Grid.GetLength(1); j++)
+                        for(int j = 0; j < returnMatrix.grid.GetLength(0); j++)
                         {
-                            returnMatrix.Grid[j, i] = lhs.Grid[j, i] + rhs.Grid[j,i];
+                            returnMatrix.grid[j, i] = lhs.grid[j, i] + rhs.grid[j,i];
                         }
                     }
                     return returnMatrix;
                 }
             }
         }
-
+        
         //Methods
-        public void List() //Lists all the values in grid to Console
+        public int getCurrent()
         {
-            for (int i = 0; i < grid.GetLength(1); i++)
+            int rowLength = grid.GetLength(0);
+            int column = iterator / rowLength;   //we can find what column the iterator is on by dividing it by rowLength
+            return grid[iterator % rowLength, column]; //we can find the row position by taking the modulus of iterator with rowLength
+        }
+        public int getFirst()
+        {
+            Iterator = 0;
+            return getCurrent();
+        }
+        public int getLast()
+        {
+            Iterator = grid.Length - 1;
+            return getCurrent();
+        }
+        public int getNext()
+        {
+            Iterator = ++iterator;
+            return getCurrent();
+        }
+        public int gerPrev()
+        {
+            Iterator = --iterator;
+            return getCurrent();
+        }
+        public bool beginning()
+        {
+            if(iterator == 0)
             {
-                for (int j = 0; j < grid.GetLength(0); j++)
-                {
-                    Console.Write(grid[j, i]);
-                    Console.Write(" ");
-                }
-                Console.WriteLine("");
+                return true;
+            }
+            {
+                return false;
             }
         }
-        public void Build()
+        public bool end()
         {
-            bool buildFinsished = true;
-            bool acceptedInput = true;
-            do
+            if(iterator == (grid.Length -1))
             {
-                for (int i = 0; i < Grid.GetLength(0); i++)
+                return true;
+            }
+            return false;
+        }
+        public int[] list()  //returns all values in the Matrix in the form of an Array
+        {
+            int[] listArray = new int[grid.Length];
+            int lastValue = grid.Length - 1;
+            getFirst();
+            while (Iterator < lastValue)
+            {
+                listArray[Iterator] = getCurrent();
+                getNext();
+            }
+            listArray[lastValue] = getLast();
+            return listArray;
+        }
+        public void fill(int Pos, int Length, int Value)    //Fills a selected area with a selected value, 
+                                                            //if the length of the fill exceeds a row length then it will continue on the following row
+        {
+            if (Pos + Length > grid.Length)
+            {
+                throw new IndexOutOfRangeException();
+            }
+            else
+            {
+                if(Pos < 0)
                 {
-                    for (int j = 0; j < Grid.GetLength(1); j++)
+                    throw new IndexOutOfRangeException();
+                }
+                else
+                {
+                    int rowNumber = Pos / grid.GetLength(0);
+                    for(int i = 0; i < Length; i++)
                     {
-                        int userInput = 0;
-                        do
+                        if (i + Pos > grid.GetLength(0))
                         {
-                            Console.Write("Current Pos [");
-                            Console.Write(j);
-                            Console.Write(", ");
-                            Console.Write(i);
-                            Console.Write("]");
-                            Console.WriteLine();
-                            if (!int.TryParse(Console.ReadLine(), out userInput))
-                            {
-                                acceptedInput = false;
-                                Console.WriteLine("That was not a valid input, please input an integer value");
-                            }
-                            else
-                            {
-                                acceptedInput = true;
-                            }
+                            Pos = 0;
                         }
-                        while (acceptedInput == false);
-
-                        Grid[j, i] = userInput;
-                        List();
+                        grid[i + Pos, rowNumber] = Value;
                     }
                 }
-
-                do
-                {
-                    Console.WriteLine("Save Grid? [Y/N]");
-                    ConsoleKeyInfo keyID = Console.ReadKey();
-                    if (keyID.Key == ConsoleKey.Y)
-                    {
-                        buildFinsished = true;
-                    }
-                    else if (keyID.Key == ConsoleKey.N)
-                    {
-                        buildFinsished = false;
-                    }
-                    else
-                    {
-                        Console.WriteLine();
-                        Console.WriteLine("That was not an accepted input");
-                    }
-                } while (acceptedInput == false);
-                Console.WriteLine();
             }
-            while (buildFinsished == false);
-          
         }
+        public void fill(int value) //Fills whole Grid with a value
+        {
+            getLast();
+            int lastValue = grid.Length - 1 ;
+            getFirst();
+            while(Iterator < lastValue)
+            {
+                setValue(value);
+                getNext();
+            }
+            setValue(value);
+            
+            
+        }
+        public void setValue(int value) //Places value at iterator's position
+        {
+            int rowNumber = iterator / grid.GetLength(0);
+            grid[iterator % grid.GetLength(0), rowNumber] = value;
+        }
+
 
         //Properties
-        public int[,] Grid
+        public int Iterator
         {
             get
             {
-                return grid;
+                return iterator;
             }
             set
             {
-                grid = value;
+                if(value >= grid.Length)
+                {
+                    iterator = grid.Length - 1;
+                }
+                else if(value < 0)
+                {
+                    iterator = 0;
+                }
+                else
+                {
+                    iterator = value;
+                }
+            }
+        }
+        public int Columns
+        {
+            get
+            {
+               return grid.GetLength(1);
+            }
+        }
+        public int Rows
+        {
+            get
+            {
+                return grid.GetLength(0);
             }
         }
     }
@@ -139,6 +205,7 @@ namespace ConsoleApplication1
                 applicationRunning = StartApplication();
             }
         }
+
         public static bool StartApplication()
         {
             bool acceptedInput = true;
@@ -149,7 +216,7 @@ namespace ConsoleApplication1
             do
             {
                 Console.WriteLine("Please input the Column length");
-                if (!int.TryParse(Console.ReadLine(), out userInput)) //Checks for a valid int
+                if (!int.TryParse(Console.ReadLine(), out userInput))   //Checks for a valid int for columnLength
                 {
                     acceptedInput = false;
                     Console.WriteLine("That was not a valid input, please input an integer value");
@@ -160,7 +227,7 @@ namespace ConsoleApplication1
                     {
                         columnLength = userInput;
                         Console.WriteLine("Please input the Row Length");
-                        if (!int.TryParse(Console.ReadLine(), out userInput))
+                        if (!int.TryParse(Console.ReadLine(), out userInput))   //Checks for a valid int for rowLength
                         {
                             acceptedInput = false;
                             Console.WriteLine("That was not a valid input, please input an integer value");
@@ -171,13 +238,15 @@ namespace ConsoleApplication1
                             rowLength = userInput;
                             Matrix matrixOne = new Matrix(columnLength, rowLength);
                             Console.WriteLine("Builing Matrix I");
-                            matrixOne.Build();
+                            Build(ref matrixOne);
+                            displayMatrix(matrixOne);
                             Console.WriteLine("Building Matrix II");
                             Matrix matrixTwo = new Matrix(columnLength, rowLength);
-                            matrixTwo.Build();
+                            Build(ref matrixTwo);
+                            displayMatrix(matrixTwo);
 
                             Matrix matrixLast = matrixTwo + matrixOne;
-                            matrixLast.List();
+                            displayMatrix(matrixLast);
                         }
                     }
                     while (acceptedInput == false);
@@ -186,5 +255,67 @@ namespace ConsoleApplication1
             while (acceptedInput == false);
             return true;
         }
+        public static bool testFill()
+        {
+            Matrix fillMatrix = new Matrix(5, 5);
+            int userInput;
+            if(int.TryParse(Console.ReadLine(), out userInput))
+            {
+                fillMatrix.fill(userInput);
+            }
+            displayMatrix(fillMatrix);
+            return true;
+        }
+
+        public static void Build(ref Matrix obj)
+        {
+            obj.getFirst();
+            bool buildFinsished = true;
+            bool acceptedInput = true;
+            do
+            {
+                do
+                {
+                    int userInput = 0;
+
+                    if (obj.end())
+                    {
+                        buildFinsished = true;
+                    }
+                    else
+                    {
+                        buildFinsished = false;
+                    }
+
+                    if (int.TryParse(Console.ReadLine(), out userInput))
+                    {
+                        acceptedInput = true;
+                        obj.setValue(userInput);
+                        obj.getNext();
+                    }
+                    else
+                    {
+                        acceptedInput = false;
+                        Console.WriteLine("Please input an integer");
+                    }
+                }
+                while (acceptedInput == false);
+            }
+            while (buildFinsished == false);
+        }
+        public static void displayMatrix(Matrix obj)
+        {
+            int[] gridArray = obj.list();
+            for (int i = 0; i < gridArray.Length; i++)
+            {
+                if ((i % obj.Rows) == 0)
+                {
+                    Console.WriteLine();
+                }
+                Console.Write(gridArray[i]);
+            }
+            Console.WriteLine();
+        }
     }
 }
+
