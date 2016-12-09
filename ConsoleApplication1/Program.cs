@@ -11,7 +11,14 @@ namespace ConsoleApplication1
         //Constuctor
         public Matrix(int columnLength, int rowLength)
         {
-            grid = new int[columnLength, rowLength];
+            if (columnLength > 0 && rowLength > 0)
+            {
+                grid = new int[columnLength, rowLength];
+            }
+            else
+            {
+                throw new IndexOutOfRangeException();
+            }
         }
         
         //Overloading Operations
@@ -46,8 +53,8 @@ namespace ConsoleApplication1
         public int getCurrent()
         {
             int rowLength = grid.GetLength(0);
-            int rowNumber = iterator / rowLength;
-            return grid[iterator % rowLength, rowNumber];
+            int column = iterator / rowLength;   //we can find what column the iterator is on by dividing it by rowLength
+            return grid[iterator % rowLength, column]; //we can find the row position by taking the modulus of iterator with rowLength
         }
         public int getFirst()
         {
@@ -87,18 +94,21 @@ namespace ConsoleApplication1
             }
             return false;
         }
-        public int[] List()  //Lists all the values in grid to Console
+        public int[] list()  //returns all values in the Matrix in the form of an Array
         {
             int[] listArray = new int[grid.Length];
             int lastValue = grid.Length - 1;
             getFirst();
-            while(Iterator != lastValue)
-                listArray[Iterator++] = getCurrent();
+            while (Iterator < lastValue)
+            {
+                listArray[Iterator] = getCurrent();
+                getNext();
+            }
             listArray[lastValue] = getLast();
             return listArray;
         }
-        public void Fill(int Pos, int Length, int Value)    //Fills a selected area with a selected value, 
-                                                            //if the length of the Fill exceeds a row length then it will continue on the following row
+        public void fill(int Pos, int Length, int Value)    //Fills a selected area with a selected value, 
+                                                            //if the length of the fill exceeds a row length then it will continue on the following row
         {
             if (Pos + Length > grid.Length)
             {
@@ -124,7 +134,7 @@ namespace ConsoleApplication1
                 }
             }
         }
-        public void Fill(int value) //Fills whole Grid with a value
+        public void fill(int value) //Fills whole Grid with a value
         {
             getLast();
             int lastValue = grid.Length - 1 ;
@@ -195,6 +205,7 @@ namespace ConsoleApplication1
                 applicationRunning = StartApplication();
             }
         }
+
         public static bool StartApplication()
         {
             bool acceptedInput = true;
@@ -205,7 +216,7 @@ namespace ConsoleApplication1
             do
             {
                 Console.WriteLine("Please input the Column length");
-                if (!int.TryParse(Console.ReadLine(), out userInput)) //Checks for a valid int
+                if (!int.TryParse(Console.ReadLine(), out userInput))   //Checks for a valid int for columnLength
                 {
                     acceptedInput = false;
                     Console.WriteLine("That was not a valid input, please input an integer value");
@@ -216,7 +227,7 @@ namespace ConsoleApplication1
                     {
                         columnLength = userInput;
                         Console.WriteLine("Please input the Row Length");
-                        if (!int.TryParse(Console.ReadLine(), out userInput))
+                        if (!int.TryParse(Console.ReadLine(), out userInput))   //Checks for a valid int for rowLength
                         {
                             acceptedInput = false;
                             Console.WriteLine("That was not a valid input, please input an integer value");
@@ -228,12 +239,14 @@ namespace ConsoleApplication1
                             Matrix matrixOne = new Matrix(columnLength, rowLength);
                             Console.WriteLine("Builing Matrix I");
                             Build(ref matrixOne);
+                            displayMatrix(matrixOne);
                             Console.WriteLine("Building Matrix II");
                             Matrix matrixTwo = new Matrix(columnLength, rowLength);
                             Build(ref matrixTwo);
+                            displayMatrix(matrixTwo);
 
                             Matrix matrixLast = matrixTwo + matrixOne;
-                            matrixLast.List();
+                            displayMatrix(matrixLast);
                         }
                     }
                     while (acceptedInput == false);
@@ -248,20 +261,12 @@ namespace ConsoleApplication1
             int userInput;
             if(int.TryParse(Console.ReadLine(), out userInput))
             {
-                fillMatrix.Fill(userInput);
+                fillMatrix.fill(userInput);
             }
-            int[] gridArray = fillMatrix.List();
-            for(int i = 0; i < gridArray.Length; i++)
-            {
-                if ((i % fillMatrix.Rows) == 0)
-                {
-                    Console.WriteLine();
-                }
-                Console.Write(gridArray[i]);
-            }
-            Console.WriteLine();
+            displayMatrix(fillMatrix);
             return true;
         }
+
         public static void Build(ref Matrix obj)
         {
             obj.getFirst();
@@ -272,6 +277,7 @@ namespace ConsoleApplication1
                 do
                 {
                     int userInput = 0;
+
                     if (obj.end())
                     {
                         buildFinsished = true;
@@ -280,6 +286,7 @@ namespace ConsoleApplication1
                     {
                         buildFinsished = false;
                     }
+
                     if (int.TryParse(Console.ReadLine(), out userInput))
                     {
                         acceptedInput = true;
@@ -293,9 +300,21 @@ namespace ConsoleApplication1
                     }
                 }
                 while (acceptedInput == false);
-
             }
             while (buildFinsished == false);
+        }
+        public static void displayMatrix(Matrix obj)
+        {
+            int[] gridArray = obj.list();
+            for (int i = 0; i < gridArray.Length; i++)
+            {
+                if ((i % obj.Rows) == 0)
+                {
+                    Console.WriteLine();
+                }
+                Console.Write(gridArray[i]);
+            }
+            Console.WriteLine();
         }
     }
 }
