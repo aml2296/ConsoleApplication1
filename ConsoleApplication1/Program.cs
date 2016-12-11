@@ -253,7 +253,31 @@ namespace ConsoleApplication1
                 }
             }
             while (acceptedInput == false);
-            return true;
+
+            Console.WriteLine("Would you like to restart? [Y = 0/N = 1]");
+            do
+            {
+                if(int.TryParse(Console.ReadLine(), out userInput))
+                {
+                    if(userInput == 1)
+                    {
+                        return false;
+                    }
+                    else if (userInput == 0)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        acceptedInput = false;
+                    }
+                }
+                else
+                {
+                    acceptedInput = false;
+                }
+            } while (acceptedInput == false);
+            return false;
         }
         public static bool testFill()
         {
