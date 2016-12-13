@@ -7,6 +7,7 @@ namespace ConsoleApplication1
         //Initalized Variables
         private int[,] grid = null;
         private int iterator = 0;
+        private int slots = 0;
 
         //Constuctor
         public Matrix(int columnLength, int rowLength)
@@ -14,6 +15,7 @@ namespace ConsoleApplication1
             if (columnLength > 0 && rowLength > 0)
             {
                 grid = new int[columnLength, rowLength];
+                slots = columnLength * rowLength;
             }
             else
             {
@@ -63,7 +65,7 @@ namespace ConsoleApplication1
         }
         public int getLast()
         {
-            Iterator = grid.Length - 1;
+            Iterator = slots - 1;
             return getCurrent();
         }
         public int getNext()
@@ -88,16 +90,16 @@ namespace ConsoleApplication1
         }
         public bool end()
         {
-            if (iterator == (grid.Length - 1))
+            if (iterator == (slots - 1))
             {
                 return true;
             }
             return false;
         }
-        public int[] list()  //returns all values in the Matrix in the form of an Array
+        public int[] list() //returns all values in the Matrix in the form of an Array
         {
-            int[] listArray = new int[grid.Length];
-            int lastValue = grid.Length - 1;
+            int[] listArray = new int[slots];
+            int lastValue = slots - 1;
             getFirst();
             while (Iterator < lastValue)
             {
@@ -110,7 +112,7 @@ namespace ConsoleApplication1
         public void fill(int value) //Fills whole Grid with a value
         {
             getLast();
-            int lastValue = grid.Length - 1;
+            int lastValue = slots - 1;
             getFirst();
             while (Iterator < lastValue)
             {
@@ -126,9 +128,13 @@ namespace ConsoleApplication1
             int rowNumber = iterator / grid.GetLength(0);
             grid[iterator % grid.GetLength(0), rowNumber] = value;
         }
+        public int getSlots()   //returns number of slots in the grid
+        {
+            return slots;
+        }
 
         //Conversion Methods from String to Int
-        private bool validString(ref string data)
+        private bool validString(ref string data) //Validates the strings data
         {
             //Initalized only characters we want to read
             char[] allowedChars = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ' ' };
@@ -152,14 +158,13 @@ namespace ConsoleApplication1
             }
             return true;
         }
-        public bool readInData(string data)
+        public bool readInData(string data) //Reads in data from current position and moves to the next
         {
             if (validString(ref data) == true)
             {
                 string[] DataSegments = data.Split();
-                if(DataSegments.Length == grid.Length)
+                if(DataSegments.Length <= grid.Length)
                 {
-                    getFirst();
                     for (int i = 0; i < DataSegments.Length; i++)
                     {
                         setValue(int.Parse(DataSegments[i]));
@@ -227,7 +232,6 @@ namespace ConsoleApplication1
             int userInput = 0;
             int columnLength = 0;
             int rowLength = 0;
-
             do
             {
                 Console.WriteLine("Please input the Column length");
@@ -298,20 +302,23 @@ namespace ConsoleApplication1
         public static void Build(ref Matrix obj)
         {
             obj.getFirst();
-            bool acceptedInput = true;
+            bool buildLoop = true;
             do
             {
-                if (obj.readInData(Console.ReadLine()))
+                if(obj.end()) //Once we're on the last Iterator we can tell the loop to stop
                 {
-                    acceptedInput = true;
+                    buildLoop = false;
                 }
-                else
+
+                if (obj.readInData(Console.ReadLine()) == false)
                 {
-                    acceptedInput = false;
                     Console.WriteLine("Please input a list of integers");
                 }
+                Console.Write("Integer's needed: ");
+                Console.Write(obj.getSlots() - obj.Iterator);
+                Console.WriteLine();
             }
-            while (acceptedInput == false);
+            while (buildLoop == true);
         }
         public static void displayMatrix(Matrix obj)
         {
