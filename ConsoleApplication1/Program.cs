@@ -163,12 +163,15 @@ namespace ConsoleApplication1
             if (validString(ref data) == true)
             {
                 string[] DataSegments = data.Split();
-                if(DataSegments.Length <= grid.Length)
+                if (DataSegments.Length <= grid.Length)
                 {
                     for (int i = 0; i < DataSegments.Length; i++)
                     {
-                        setValue(int.Parse(DataSegments[i]));
-                        getNext();
+                        if (DataSegments[i] != "")
+                        {
+                            setValue(int.Parse(DataSegments[i]));
+                            getNext();
+                        }
                     }
                     return true;
                 }
@@ -258,12 +261,13 @@ namespace ConsoleApplication1
                             Matrix matrixOne = new Matrix(columnLength, rowLength);
                             Console.WriteLine("Builing Matrix I");
                             Build(ref matrixOne);
-                            displayMatrix(matrixOne);
                             Console.WriteLine("Building Matrix II");
                             Matrix matrixTwo = new Matrix(columnLength, rowLength);
                             Build(ref matrixTwo);
+                            displayMatrix(matrixOne);
+                            Console.WriteLine("+");
                             displayMatrix(matrixTwo);
-
+                            Console.WriteLine("----------------");
                             Matrix matrixLast = matrixTwo + matrixOne;
                             displayMatrix(matrixLast);
                         }
@@ -329,7 +333,7 @@ namespace ConsoleApplication1
                 {
                     Console.WriteLine();
                 }
-                Console.Write(gridArray[i]);
+                Console.Write(gridArray[i] + ", ");
             }
             Console.WriteLine();
         }
